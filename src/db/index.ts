@@ -1,14 +1,11 @@
-import { createClient } from "@libsql/client";
-import {
-	env,
-} from 'node:process';
+import { createClient } from "@libsql/client"
 
 const clients: { [key: string]: ReturnType<typeof createClient> } = {}
 
 export const getClient = (dbName: string) => {
 	if (!clients[dbName]) {
-		const url = env[`${dbName.toUpperCase()}_DATABASE_URL`]
-		const authToken = env[`${dbName.toUpperCase()}_AUTH_TOKEN`]
+		const url = process.env[`${dbName.toUpperCase()}_DATABASE_URL`]
+		const authToken = process.env[`${dbName.toUpperCase()}_AUTH_TOKEN`]
 
 		if (!url || !authToken) {
 			throw new Error(`Database credentials for '${dbName}' are not defined.`)
