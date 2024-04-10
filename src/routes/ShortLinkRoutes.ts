@@ -1,8 +1,13 @@
 import type { Elysia } from "elysia";
 import { t } from "elysia";
-import { createShortLink, getShortLink, getShortLinksCount } from "../controllers/ShortLinkController";
-import type { RequestParams, RequestWithBody } from "../types";
+import type { RequestParams, RequestQuery, RequestWithBody } from "../types";
 import { rateLimiter } from '../utils/RateLimiter';
+import { 
+    createShortLink, 
+    getShortLinkByShortUrl, 
+    getShortLinksCount, 
+    getShortLinkByQuery 
+} from "../controllers/ShortLinkController";
 import { addClient, removeClient } from '../utils/notifications';
 
 const shortLinkRoutes = (app: Elysia) => {
@@ -11,7 +16,7 @@ const shortLinkRoutes = (app: Elysia) => {
         async ({ ip, params: { shortUrl }, headers, set }: RequestParams) => {
             rateLimiter(ip?.address)
 
-            const res = await getShortLink(shortUrl, headers?.["x-security-token"] ?? "")
+            const res = await getShortLinkByShortUrl(shortUrl, headers?.["x-security-token"] ?? "")
 
             set.status = Number(res.status || 200);
 
@@ -22,7 +27,31 @@ const shortLinkRoutes = (app: Elysia) => {
                 'x-security-token': t.Optional(t.String())
             }),
             detail: {
-                summary: "Get the number of short links",
+                summary: "Get data of a short link",
+                tags: ["short-links"]
+            }
+        }
+    )
+    app.get(
+        "/short-links",
+        async ({ ip, query, set }: RequestQuery) => {
+            rateLimiter(ip?.address)
+
+            const res = await getShortLinkByQuery(query.shortCodes)
+
+            set.status = Number(res.status || 200);
+
+            return res
+        },
+        {
+            query: t.Object({
+                shortCodes: t.String(),
+            }),
+            headers: t.Object({
+                'x-security-token': t.Optional(t.String())
+            }),
+            detail: {
+                summary: "Get data of a short link",
                 tags: ["short-links"]
             }
         }

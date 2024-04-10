@@ -8,6 +8,18 @@ export type RequestParams = Request & {
     }
 }
 
+export type RequestQuery =  {
+    ip: { address: string };
+    headers?: { [key: string]: string };
+    query: {
+        shortCodes: string
+    }
+    error: (status: number, message: string) => void;
+    set: {
+        status: number;
+    }
+}
+
 export type RequestWithIP = Request & { ip: { address: string } }
 
 export type RequestWithBody = Request & { 

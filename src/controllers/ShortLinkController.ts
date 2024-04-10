@@ -1,23 +1,44 @@
-import { createShortLinkInDb, getShortLinkByShortUrl, getShortLinksCountFromDb, updateClickCount } from "../db/ShortLinkModel";
+import { createShortLinkInDb, getShortLinkByShortUrlFromDb, getShortLinksCountFromDb, updateClickCount } from "../db/ShortLinkModel";
 import { notifyClients } from '../utils/notifications';
 
-export const getShortLink = async (shortUrl: string, securityToken: string) => {
+export const getShortLinkByShortUrl = async (shortCode: string, securityToken: string) => {
     try {
-        const result = await getShortLinkByShortUrl(shortUrl);
-        if (!result) {
+        const result = await getShortLinkByShortUrlFromDb(shortCode);
+        
+        if (!result || result.length === 0) {
             return {
                 status: 404,
                 message: 'Short link not found.'
-            }
+            };
         }
 
-        if (result.click_count !== null && securityToken === 'secret') {
-            updateClickCount(Number(result.id), Number(result.click_count) + 1, new Date())
+        const shortLink = result[0];
+
+        if (shortLink.click_count !== null && securityToken === 'secret') {
+            await updateClickCount(Number(shortLink.id), Number(shortLink.click_count) + 1, new Date())
         }
 
-        const { id, ...shortLinkData } = result;
+        const { id, ...shortLinkData } = shortLink;
+        return shortLinkData;
+        
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
 
-        return {...shortLinkData};
+export const getShortLinkByQuery = async (shortCodes: string) => {
+    try {
+        const result = await getShortLinkByShortUrlFromDb(shortCodes);
+
+        if (!result || result.length === 0) {
+            return {
+                status: 404,
+                message: 'Short link not found.'
+            };
+        }
+
+        return { data: result, status: 200 }
     } catch (error) {
         console.error(error);
         throw error;
@@ -40,11 +61,9 @@ export const createShortLink = async (url: string, shortUrl: string, userId?: nu
             }
         }
         
-        const { id, ...shortLinkData } = result;
-
         notifyClients({ count: await getShortLinksCountFromDb() });
 
-        return shortLinkData;
+        return { ...result[0], status: 201 };
     } catch (error) {
         console.error(error);
         throw error;

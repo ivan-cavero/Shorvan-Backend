@@ -4,7 +4,7 @@ type RequestCounts = {
   
 const requestCounts: RequestCounts = {};
 
-const RATE_LIMIT = 5
+const RATE_LIMIT = 20
 const TIME_FRAME = 60 * 1000;
   
 export const rateLimiter = (ipAddress: string) => {

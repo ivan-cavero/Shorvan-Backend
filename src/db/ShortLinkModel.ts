@@ -2,32 +2,41 @@ import { getClient } from ".";
 
 const client = getClient("shortLinks");
 
-export const getShortLinkByShortUrl = async (shortUrl: string) => {
+export const getShortLinkByShortUrlFromDb = async (shortUrls: string) => {
+    const shortUrlArray = shortUrls.split(',')
+    const placeholders = shortUrlArray.map(() => '?').join(',');
+
+    const sql = `
+        SELECT
+            id,
+            original_url,
+            short_code,
+            expiration_date,
+            click_count,
+            created_at
+        FROM 
+            links
+        WHERE short_code IN (${placeholders})
+    `;
+
     const result = await client.execute({
-        sql: `SELECT
-                id,
-                original_url,
-                short_code,
-                expiration_date,
-                click_count,
-                created_at
-            FROM 
-                links
-            WHERE short_code = ?`,
-        args: [shortUrl]
+        sql: sql,
+        args: shortUrlArray
     });
-    return result.rows.length ? result.rows[0] : null;
+
+    return result.rows.length ? result.rows : null;
 }
 
 export const createShortLinkInDb = async (url: string, shortUrl: string, userId?: number, expirationDate?: Date) => {
-    const expirationValue = expirationDate ? expirationDate.toISOString().slice(0, 19).replace('T', ' ') : null;
+    const expirationValue = expirationDate ? expirationDate.toISOString().slice(0, 19).replace('T', ' ') : userId ? null : new Date(new Date().getTime() + 60 * 60 * 24 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+    
     const userIdValue = userId !== undefined ? userId : null;
 
     await client.execute({
         sql: "INSERT INTO links (original_url, short_code, user_id, expiration_date, click_count, created_at) VALUES (?, ?, ?, ?, 0, CURRENT_TIMESTAMP)",
         args: [url, shortUrl, userIdValue, expirationValue]
     });
-    return getShortLinkByShortUrl(shortUrl);
+    return getShortLinkByShortUrlFromDb(shortUrl);
 };
 
 export const updateShortLink = async (shortUrl: string, expirationDate: Date) => {
