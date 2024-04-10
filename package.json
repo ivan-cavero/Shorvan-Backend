@@ -16,7 +16,8 @@
     "elysia-ip": "^1.0.3"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "@flydotio/dockerfile": "latest"
   },
   "module": "src/index.js",
   "bun-create": {
