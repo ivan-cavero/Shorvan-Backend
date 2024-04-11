@@ -4,7 +4,7 @@ import { getRateLimitInfo } from "../utils/RateLimiter"
 import shortLinkRoutes from "./ShortLinkRoutes"
 
 const setupRoutes = (app: Elysia) => {
-	app.get("/", ({ ip }: RequestWithIP) =>  `Server is up | Your IP: ${ip.address}`)
+	app.get("/up", ({ ip }: RequestWithIP) =>  `Server is up | Your IP: ${ip.address}`)
 	
 	shortLinkRoutes(app)
 
