@@ -1,9 +1,9 @@
-import { createShortLinkInDb, getShortLinkByShortUrlFromDb, getShortLinksCountFromDb, updateClickCount } from "../db/ShortLinkModel";
+import { createShortLinkInDb, getShortLinkByShortCodeFromDb, getShortLinksCountFromDb, updateClickCount } from "../db/ShortLinkModel";
 import { notifyClients } from '../utils/notifications';
 
-export const getShortLinkByShortUrl = async (shortCode: string, securityToken: string) => {
+export const getShortLinkByShortCode = async (shortCode: string, securityToken: string) => {
     try {
-        const result = await getShortLinkByShortUrlFromDb(shortCode);
+        const result = await getShortLinkByShortCodeFromDb(shortCode);
         
         if (!result || result.length === 0) {
             return {
@@ -29,7 +29,7 @@ export const getShortLinkByShortUrl = async (shortCode: string, securityToken: s
 
 export const getShortLinkByQuery = async (shortCodes: string) => {
     try {
-        const result = await getShortLinkByShortUrlFromDb(shortCodes);
+        const result = await getShortLinkByShortCodeFromDb(shortCodes);
 
         if (!result || result.length === 0) {
             return {
@@ -45,15 +45,15 @@ export const getShortLinkByQuery = async (shortCodes: string) => {
     }
 }
 
-export const createShortLink = async (url: string, shortUrl: string, userId?: number, expirationDate?: Date) => {
-    if (!url || !shortUrl) {
+export const createShortLink = async (url: string, shortCode: string, userId?: number, expirationDate?: Date) => {
+    if (!url || !shortCode) {
         return {
             status: 400,
             message: 'URL and short URL are required.'
         }
     }
     try {
-        const result = await createShortLinkInDb(url, shortUrl, userId, expirationDate);
+        const result = await createShortLinkInDb(url, shortCode, userId, expirationDate);
         if (!result) {
             return {
                 status: 500,

@@ -2,7 +2,7 @@ import { getClient } from ".";
 
 const client = getClient("shortLinks");
 
-export const getShortLinkByShortUrlFromDb = async (shortUrls: string) => {
+export const getShortLinkByShortCodeFromDb = async (shortUrls: string) => {
     const shortUrlArray = shortUrls.split(',')
     const placeholders = shortUrlArray.map(() => '?').join(',');
 
@@ -36,7 +36,7 @@ export const createShortLinkInDb = async (url: string, shortUrl: string, userId?
         sql: "INSERT INTO links (original_url, short_code, user_id, expiration_date, click_count, created_at) VALUES (?, ?, ?, ?, 0, CURRENT_TIMESTAMP)",
         args: [url, shortUrl, userIdValue, expirationValue]
     });
-    return getShortLinkByShortUrlFromDb(shortUrl);
+    return getShortLinkByShortCodeFromDb(shortUrl);
 };
 
 export const updateShortLink = async (shortUrl: string, expirationDate: Date) => {

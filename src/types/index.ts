@@ -1,6 +1,6 @@
 export type RequestParams = Request & {
     ip: { address: string };
-    params: { shortUrl: string };
+    params: { shortCode: string };
     headers?: { [key: string]: string };
     error: (status: number, message: string) => void;
     set: {
@@ -31,7 +31,7 @@ export type RequestWithBody = Request & {
 
 interface RequestBody {
     url: string;
-    shortUrl: string;
+    shortCode: string;
     userId?: number;
     expirationDate?: Date;
     clickCount?: number;

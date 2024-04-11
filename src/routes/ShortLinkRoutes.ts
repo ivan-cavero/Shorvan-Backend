@@ -4,7 +4,7 @@ import type { RequestParams, RequestQuery, RequestWithBody } from "../types";
 import { rateLimiter } from '../utils/RateLimiter';
 import { 
     createShortLink, 
-    getShortLinkByShortUrl, 
+    getShortLinkByShortCode, 
     getShortLinksCount, 
     getShortLinkByQuery 
 } from "../controllers/ShortLinkController";
@@ -12,11 +12,11 @@ import { addClient, removeClient } from '../utils/notifications';
 
 const shortLinkRoutes = (app: Elysia) => {
     app.get(
-        "/short-link/:shortUrl",
-        async ({ ip, params: { shortUrl }, headers, set }: RequestParams) => {
+        "/short-link/:shortCode",
+        async ({ ip, params: { shortCode }, headers, set }: RequestParams) => {
             rateLimiter(ip?.address)
 
-            const res = await getShortLinkByShortUrl(shortUrl, headers?.["x-security-token"] ?? "")
+            const res = await getShortLinkByShortCode(shortCode, headers?.["x-security-token"] ?? "")
 
             set.status = Number(res.status || 200);
 
@@ -59,7 +59,7 @@ const shortLinkRoutes = (app: Elysia) => {
     app.post(
 		"/short-links",
         async ({ body, set }: RequestWithBody) => {
-            const res = await createShortLink(body.url, body.shortUrl, body?.userId, body?.expirationDate)
+            const res = await createShortLink(body.url, body.shortCode, body?.userId, body?.expirationDate)
 
             set.status = Number(res.status || 201)
 
@@ -69,7 +69,7 @@ const shortLinkRoutes = (app: Elysia) => {
 			body: t.Object(
 				{
 					url: t.String(),
-                    shortUrl: t.String(),
+                    shortCode: t.String(),
                     userId: t.Optional(t.Number()),
                     expirationDate: t.Optional(t.Date())
 				},
