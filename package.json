@@ -11,6 +11,7 @@
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/cron": "^1.0.3",
     "@elysiajs/server-timing": "^1.0.2",
+    "@elysiajs/stream": "^1.0.2",
     "@elysiajs/swagger": "^1.0.3",
     "@libsql/client": "^0.6.0",
     "elysia": "latest",
