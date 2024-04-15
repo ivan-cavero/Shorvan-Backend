@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --outdir ./build --target node --format esm",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "deploy": "fly deploy"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.0.2",
