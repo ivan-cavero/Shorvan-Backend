@@ -119,3 +119,21 @@ export const getShortLinksCountFromDb = async () => {
     });
     return result.rows[0].count;
 };
+
+export const getClicksCountFromDb = async () => {
+    const client = getClient("shortLinks");
+    const result = await client.execute({
+        sql: "SELECT COUNT(*) AS count FROM clicks",
+        args: []
+    });
+    return result.rows[0].count;
+}
+
+export const getBrandedLinksCountFromDb = async () => {
+    const client = getClient("shortLinks");
+    const result = await client.execute({
+        sql: "SELECT COUNT(*) AS count FROM brand_links",
+        args: []
+    });
+    return result.rows[0].count;
+}

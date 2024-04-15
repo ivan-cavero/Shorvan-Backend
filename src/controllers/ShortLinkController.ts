@@ -1,4 +1,4 @@
-import { createShortLinkInDb, getShortLinkByShortCodeFromDb, getShortLinksCountFromDb, updateClickCount } from "../db/ShortLinkModel";
+import { createShortLinkInDb, getShortLinkByShortCodeFromDb, getShortLinksCountFromDb, getClicksCountFromDb, getBrandedLinksCountFromDb, updateClickCount } from "../db/ShortLinkModel";
 import { notifyClients } from '../utils/notifications';
 
 export const getShortLinkByShortCode = async (shortCode: string, securityToken: string) => {
@@ -61,7 +61,7 @@ export const createShortLink = async (url: string, shortCode: string, userId?: n
             }
         }
         
-        notifyClients({ count: await getShortLinksCountFromDb() });
+        notifyClients({  count: { links: await getShortLinksCountFromDb(), clicks: await getClicksCountFromDb(), brandedLinks: await getBrandedLinksCountFromDb() }})
 
         return { ...result[0], status: 201 };
     } catch (error) {
@@ -72,9 +72,7 @@ export const createShortLink = async (url: string, shortCode: string, userId?: n
 
 export const getShortLinksCount = async () => {
 	try {
-		const shortLinksCount = await getShortLinksCountFromDb()
-
-        return  shortLinksCount
+        return  { links: await getShortLinksCountFromDb(), clicks: await getClicksCountFromDb(), brandedLinks: await getBrandedLinksCountFromDb() }
 	} catch (error) {
 		console.error(error)
         throw error
