@@ -1,11 +1,14 @@
 import type { Elysia } from "elysia";
 import { t } from "elysia";
 import type { RequestParams, RequestQuery, RequestWithBody } from "../types";
+import { Stream } from '@elysiajs/stream'
 import { rateLimiter } from '../utils/RateLimiter';
 import { 
     createShortLink, 
     getShortLinkByShortCode, 
     getShortLinksCount, 
+    getClicksCount,
+    getBrandedLinksCount,
     getShortLinkByQuery 
 } from "../controllers/ShortLinkController";
 import { addClient, removeClient } from '../utils/notifications';
@@ -84,16 +87,17 @@ const shortLinkRoutes = (app: Elysia) => {
 		}
 	)
     app.get(
-        "/short-links/count",
-        async ({ ip, set }: RequestParams) => {
+        '/short-links/count',
+        async ({ ip, set }: RequestParams) => new Stream(async (stream) => {
             rateLimiter(ip?.address)
 
-            const res = await getShortLinksCount()
+            stream.send({ links: await getShortLinksCount()})
+            stream.send({ clicks: await getClicksCount()})
+            stream.send({ users: await getBrandedLinksCount()})
 
             set.status = Number(200);
-
-            return res
-        },
+            stream.close()
+        }),
         {
             detail: {
                 summary: "Get the number of short links",
