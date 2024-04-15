@@ -16,7 +16,7 @@ export const getShortLinkByShortCodeFromDb = async (shortUrls: string) => {
             created_at
         FROM 
             links
-        WHERE short_code IN (${placeholders})
+        WHERE short_code IN (${placeholders}) AND deleted IS NOT NULL
     `;
 
     const result = await client.execute({
@@ -69,15 +69,46 @@ export const updateBrandLink = async (shortUrl: string, brandLink: string) => {
 
 export const deleteExpiredLinks = async () => {
     const result = await client.execute({
-        sql: "DELETE FROM links WHERE expiration_date IS NOT NULL AND expiration_date < CURRENT_TIMESTAMP",
+        sql: `
+            UPDATE links 
+            SET deleted = 1, deleted_at = CURRENT_TIMESTAMP 
+            WHERE expiration_date IS NOT NULL AND expiration_date < CURRENT_TIMESTAMP
+        `,
         args: []
-    })
+    });
 
     if (result.rowsAffected === 0) {
-        return "No expired links found"
+        return "No expired links found";
     } 
+
+    await client.execute({
+        sql: `
+            UPDATE clicks 
+            SET deleted = 1, deleted_at = CURRENT_TIMESTAMP 
+            WHERE link_id IN (SELECT id FROM links WHERE deleted = 1)
+        `,
+        args: []
+    });
+
+    await client.execute({
+        sql: `
+            UPDATE qr_codes 
+            SET deleted = 1, deleted_at = CURRENT_TIMESTAMP 
+            WHERE link_id IN (SELECT id FROM links WHERE deleted = 1)
+        `,
+        args: []
+    });
+
+    await client.execute({
+        sql: `
+            UPDATE brand_links 
+            SET deleted = 1, deleted_at = CURRENT_TIMESTAMP 
+            WHERE link_id IN (SELECT id FROM links WHERE deleted = 1)
+        `,
+        args: []
+    });
     
-    return `Deleted ${result.rowsAffected} expired links`
+    return `Soft deleted ${result.rowsAffected} expired links`;
 }
 
 export const getShortLinksCountFromDb = async () => {
