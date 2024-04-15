@@ -101,7 +101,7 @@ const shortLinkRoutes = (app: Elysia) => {
             }
         }
     )
-    app.ws('/short-links/ws-count', {
+    app.ws('/short-links/ws-count-links', {
         open(ws) {
             addClient(ws);
             getShortLinksCount().then((count) => {

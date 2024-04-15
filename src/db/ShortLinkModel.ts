@@ -16,7 +16,7 @@ export const getShortLinkByShortCodeFromDb = async (shortUrls: string) => {
             created_at
         FROM 
             links
-        WHERE short_code IN (${placeholders}) AND deleted IS NOT NULL
+        WHERE short_code IN (${placeholders}) AND deleted IS NULL
     `;
 
     const result = await client.execute({
