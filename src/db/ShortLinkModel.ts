@@ -72,7 +72,7 @@ export const deleteExpiredLinks = async () => {
         sql: `
             UPDATE links 
             SET deleted = 1, deleted_at = CURRENT_TIMESTAMP 
-            WHERE expiration_date IS NOT NULL AND expiration_date < CURRENT_TIMESTAMP
+            WHERE expiration_date IS NOT NULL AND expiration_date < CURRENT_TIMESTAMP AND deleted IS NULL
         `,
         args: []
     });
